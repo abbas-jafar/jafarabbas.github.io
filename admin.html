@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Site editor</title>
+<style>
+  :root { --bg:#fff; --fg:#1d1d1f; --muted:#666a73; --link:#1a56a0; --rule:#dfe2e6; --soft:#f5f6f8; --ok:#1c7c3a; --warn:#b45309; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#121316; --fg:#e8e8ea; --muted:#9a9aa3; --link:#7db3ff; --rule:#2a2b30; --soft:#1b1c21; --ok:#5fd18a; --warn:#f0a35c; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  a { color: var(--link); }
+  #bar { position:sticky; top:0; z-index:5; background:var(--soft); border-bottom:1px solid var(--rule); padding:10px 16px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  #bar strong { margin-right:auto; }
+  #status { color:var(--muted); }
+  #status.dirty { color:var(--warn); }
+  #status.ok { color:var(--ok); }
+  main { max-width:900px; margin:0 auto; padding:16px; }
+  #tabs { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+  #tabs button.on { background:var(--link); color:#fff; border-color:var(--link); }
+  button { font:inherit; padding:6px 12px; border:1px solid var(--rule); background:var(--bg); color:var(--fg); border-radius:6px; cursor:pointer; }
+  button:hover { border-color:var(--link); }
+  button.primary { background:var(--link); color:#fff; border-color:var(--link); }
+  label { display:block; font-size:13px; color:var(--muted); margin:0 0 2px; }
+  input[type=text], input[type=password], textarea, select { width:100%; font:inherit; padding:7px 9px; border:1px solid var(--rule); border-radius:6px; background:var(--bg); color:var(--fg); }
+  textarea { resize:vertical; }
+  .field { margin-bottom:12px; }
+  .hint { font-size:12px; color:var(--muted); margin-top:2px; }
+  .card { border:1px solid var(--rule); border-radius:8px; padding:12px; margin-bottom:12px; background:var(--soft); }
+  .cardhead { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px; }
+  .cardhead .btns { display:flex; gap:6px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:0 14px; }
+  .grid .wide { grid-column:1 / -1; }
+  h2 { margin:20px 0 8px; font-size:18px; }
+  #banner { background:var(--soft); border:1px solid var(--warn); padding:8px 12px; border-radius:6px; margin-bottom:14px; display:none; }
+  pre#log { background:var(--soft); padding:10px; border-radius:6px; white-space:pre-wrap; min-height:40px; }
+  @media (max-width:640px) { .grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div id="bar">
+  <strong>Site editor</strong>
+  <span id="status">Loading…</span>
+  <button id="btnDownload">Download site.json</button>
+  <button id="btnPublish" class="primary">Publish to GitHub</button>
+  <a href="index.html" target="_blank" rel="noopener">View site</a>
+</div>
+<main>
+  <div id="banner">Showing your unsaved draft from this browser. <button id="btnDiscard">Discard draft and reload live data</button></div>
+  <div id="tabs"></div>
+  <div id="panel"></div>
+</main>
+<script src="admin.js"></script>
+</body>
+</html>

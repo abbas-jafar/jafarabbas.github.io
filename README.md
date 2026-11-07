@@ -31,3 +31,31 @@ Upload your CV and photo from the Files tab. They are saved to `assets/` and lin
 - Publications with status "under review" or "in preparation" appear in their own section. Others are grouped by year, newest first. Your name (set as "Name as it appears in author lists") is shown in bold.
 - To preview on your own computer, run `python3 -m http.server` in this folder and open http://localhost:8000. Opening the files by double-click will not work.
 - Replace the sample content (placeholder email, links, sample papers) before sharing the address.
+
+---
+
+## New: edit directly on the page
+
+Open `admin.html` once in your browser (it remembers you). After that, an **"✎ Edit this page"** button appears at the bottom right of every page, **only in your browser** (visitors never see it). It opens the editor in a side panel on the right, on the right tab for that page, and every change shows on the page instantly. Press **Publish to GitHub** in the panel to save.
+To remove the button on a shared computer: Publish tab → "Hide the Edit button and forget my token".
+
+## New: automatic publications (weekly)
+
+A GitHub Action (`.github/workflows/sync-publications.yml`) runs every Monday and adds new papers to your Publications page. It never changes or removes papers you already have, and a paper you delete never comes back.
+
+**Recommended: ORCID (free, no key)**
+1. Create a free ORCID iD at orcid.org and add your papers (Works → Add works → Search & link, or paste a BibTeX file exported from Google Scholar).
+2. In the editor: Profile tab → "ORCID iD" → paste it (like 0000-0002-1825-0097) → Publish.
+3. Done. To run it immediately: Publications tab → "Sync publications now", or GitHub → Actions → "Sync publications" → Run workflow.
+
+**Optional: Google Scholar directly.** Google Scholar has no official API and blocks scripts, so it needs a paid-or-free-tier go-between called SerpAPI (free plan: 100 searches a month, one search per weekly run).
+1. Get a key at serpapi.com.
+2. GitHub repo → Settings → Secrets and variables → Actions → New repository secret → name `SERPAPI_KEY`, paste the key.
+3. In the editor: Profile tab → "Google Scholar ID" (the `user=XXXX` part of your Scholar link) → Publish.
+
+### Upload the new files
+Add these to your repository, keeping the folders: `edit.js`, `scripts/sync_publications.py`, and `.github/workflows/sync-publications.yml`. Also replace `admin.js`, `admin.html`, `site.js`, the five page `.html` files, and `data/site.json` ONLY if you have not added your own content yet (otherwise keep your current `data/site.json`).
+If your browser will not drag in the hidden `.github` folder, use Add file → Create new file in GitHub, type `.github/workflows/sync-publications.yml` as the name, and paste the file's text.
+
+### Token permissions
+For the "Sync now" button, edit your token (Settings → Developer settings → Fine-grained tokens) and add **Actions: Read and write**. The weekly automatic run needs nothing extra.

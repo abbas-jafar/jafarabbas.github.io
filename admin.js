@@ -39,10 +39,18 @@
     s.className = kind || "";
   }
 
+  // When opened inside the page's edit drawer, show every change live on the page behind it.
+  function preview() {
+    try {
+      if (window.parent && window.parent !== window) window.parent.postMessage({ type: "site-data", data: data }, location.origin);
+    } catch (e) { /* ignore */ }
+  }
+
   function changed() {
     dirty = true;
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch (e) { /* ignore */ }
     setStatus("Unpublished changes (draft kept in this browser)", "dirty");
+    preview();
   }
 
   // ---------- link text helpers ----------
@@ -80,7 +88,7 @@
   }
 
   // ---------- list editor (add / delete / reorder) ----------
-  function listEditor(arr, fields, blank, titleFn, addTop) {
+  function listEditor(arr, fields, blank, titleFn, addTop, onDelete) {
     var wrap = el("div");
     function move(i, d) {
       var j = i + d;
@@ -104,7 +112,7 @@
               btn("↑", function () { move(i, -1); }),
               btn("↓", function () { move(i, 1); }),
               btn("Delete", function () {
-                if (confirm("Delete this item?")) { arr.splice(i, 1); changed(); draw(); }
+                if (confirm("Delete this item?")) { if (onDelete) onDelete(item); arr.splice(i, 1); changed(); draw(); }
               }))),
           form(item, fields)));
       });
@@ -134,6 +142,12 @@
       p.append(form(data.profile, [
         { key: "links", label: "One per line: Label | URL  (Google Scholar, ORCID, GitHub, LinkedIn, ...)", type: "links", rows: 6, wide: true }
       ]));
+      p.append(el("h2", {}, "Automatic publication sync"));
+      p.append(el("p", { class: "hint" }, "Fill in ONE of these so new papers are added automatically every week. ORCID (free, most reliable) is recommended. A Google Scholar ID works too, but needs a SerpAPI key (see README)."));
+      p.append(form(data.profile, [
+        { key: "orcid", label: "ORCID iD (e.g. 0000-0002-1825-0097)", hint: "Create one free at orcid.org, then add your papers there." },
+        { key: "scholarId", label: "Google Scholar ID (the user=... part of your profile link)" }
+      ]));
       p.append(el("h2", {}, "Research themes"));
       p.append(listEditor(data.profile.themes = data.profile.themes || [], [
         { key: "title", label: "Theme" },
@@ -151,7 +165,13 @@
     },
 
     Publications: function (p) {
-      p.append(el("p", { class: "hint" }, "Set status to \"under review\" or \"in preparation\" and the paper moves to its own section. The first link becomes the clickable title. Your name is bolded automatically."));
+      p.append(el("p", { class: "hint" }, "Papers tagged (auto) were added by the weekly sync from ORCID or Google Scholar. You can edit them (add code links, notes) and your edits are kept. Deleting one stops it coming back. Set status to \"under review\" or \"in preparation\" and the paper moves to its own section."));
+      var syncOut = el("pre", { id: "log" }, "");
+      p.append(btn("Sync publications now", function () { syncOut.textContent = "Starting ..."; dispatchSync(syncOut); }));
+      p.append(" ");
+      p.append(el("span", { class: "hint" }, "Needs a token with Actions: Read and write. After it runs (about a minute), reload this editor to see new papers."));
+      p.append(syncOut);
+      p.append(el("div", { style: "height:12px" }));
       p.append(listEditor(data.publications = data.publications || [], [
         { key: "year", label: "Year" },
         { key: "status", label: "Status", type: "select", options: ["published", "under review", "in preparation"] },
@@ -162,7 +182,12 @@
         { key: "note", label: "Note (optional, e.g. Best Paper Award)", wide: true }
       ], function () {
         return { year: String(new Date().getFullYear()), title: "", authors: data.profile.authorName || data.profile.name, venue: "", status: "published", links: [], note: "" };
-      }, function (x) { return (x.year || "") + "  " + (x.title || "New publication"); }, true));
+      }, function (x) { return (x.year || "") + "  " + (x.title || "New publication") + (x.auto ? "  (auto)" : ""); }, true,
+      function (x) {
+        if (!x.key) return;
+        data.ignored = data.ignored || [];
+        if (data.ignored.indexOf(x.key) < 0) data.ignored.push(x.key);
+      }));
     },
 
     Students: function (p) {
@@ -267,6 +292,12 @@
       p.append(btn("Publish to GitHub", function () { save(); publish(out); }, "primary"));
       p.append(el("div", { style: "height:12px" }));
       p.append(out);
+      p.append(el("h2", {}, "This device"));
+      p.append(btn("Hide the “Edit this page” button and forget my token", function () {
+        try { localStorage.removeItem("site_editor"); localStorage.removeItem(CFG_KEY); } catch (e) { /* ignore */ }
+        sessionCfg = null;
+        out.textContent = "Done. Open admin.html again any time to bring the button back.";
+      }));
     }
   };
 
@@ -307,6 +338,23 @@
     });
   }
 
+  function dispatchSync(out) {
+    var c = loadCfg();
+    if (!c.repo || !c.token) { out.textContent = "Fill in repository and token in the Publish tab first."; return; }
+    fetch("https://api.github.com/repos/" + c.repo + "/actions/workflows/sync-publications.yml/dispatches", {
+      method: "POST",
+      headers: { Accept: "application/vnd.github+json", Authorization: "Bearer " + c.token, "X-GitHub-Api-Version": "2022-11-28" },
+      body: JSON.stringify({ ref: c.branch || "main" })
+    }).then(function (r) {
+      if (r.status === 204) out.textContent = "Sync started. New papers appear in about a minute. Reload this editor afterwards.";
+      else return r.json().catch(function () { return {}; }).then(function (j) {
+        out.textContent = "Could not start the sync (status " + r.status + "): " + (j.message || "") +
+          (r.status === 404 ? "\nIs .github/workflows/sync-publications.yml uploaded?" : "") +
+          (r.status === 403 || r.status === 401 ? "\nYour token needs Actions: Read and write." : "");
+      });
+    }).catch(function (e) { out.textContent = "Failed: " + e.message; });
+  }
+
   function utf8ToB64(str) {
     var bytes = new TextEncoder().encode(str), bin = "";
     for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
@@ -322,6 +370,7 @@
         dirty = false;
         try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* ignore */ }
         setStatus("Published. The live site updates in about a minute.", "ok");
+        preview();
         out.textContent = "Done. GitHub Pages will refresh the site in about a minute.";
       })
       .catch(function (e) { out.textContent = "Publish failed: " + e.message; setStatus("Publish failed", "dirty"); });
@@ -351,6 +400,10 @@
   }
 
   function start() {
+    try { localStorage.setItem("site_editor", "1"); } catch (e) { /* ignore */ }
+    var h = decodeURIComponent((location.hash || "").slice(1));
+    if (TABS[h]) tab = h;
+    if (/[?&]embed=1/.test(location.search)) document.body.classList.add("embed");
     $("#btnDownload").addEventListener("click", download);
     $("#btnPublish").addEventListener("click", function () {
       var c = loadCfg();

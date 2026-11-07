@@ -13,19 +13,45 @@
     "statement": "My research develops reliable machine learning methods and applies them to real problems. I am interested in how learning systems can be made robust, how they can help defend information systems, and how they can support analysis of biological and medical data.",
     "bio": "Jafar Abbas is a Research Assistant in the Department of Computer Science at Government College University Faisalabad (GCUF). His research interests include machine learning, AI for information security, and computational biology. Replace this paragraph with a short third-person biography of about 100 words covering your positions, education and awards.",
     "links": [
-      { "label": "Google Scholar", "url": "https://scholar.google.com/" },
-      { "label": "ORCID", "url": "https://orcid.org/" },
-      { "label": "GitHub", "url": "https://github.com/" },
-      { "label": "LinkedIn", "url": "https://www.linkedin.com/" }
+      {
+        "label": "Google Scholar",
+        "url": "https://scholar.google.com/"
+      },
+      {
+        "label": "ORCID",
+        "url": "https://orcid.org/"
+      },
+      {
+        "label": "GitHub",
+        "url": "https://github.com/"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://www.linkedin.com/"
+      }
     ],
     "themes": [
-      { "title": "AI for information security", "desc": "Learning-based methods for detecting and defending against threats." },
-      { "title": "Medical and biological data analysis", "desc": "Deep learning for images and sequence data in healthcare and bioinformatics." },
-      { "title": "Reliable machine learning", "desc": "Robustness, evaluation and reproducibility of learned models." }
-    ]
+      {
+        "title": "AI for information security",
+        "desc": "Learning-based methods for detecting and defending against threats."
+      },
+      {
+        "title": "Medical and biological data analysis",
+        "desc": "Deep learning for images and sequence data in healthcare and bioinformatics."
+      },
+      {
+        "title": "Reliable machine learning",
+        "desc": "Robustness, evaluation and reproducibility of learned models."
+      }
+    ],
+    "orcid": "",
+    "scholarId": ""
   },
   "news": [
-    { "date": "2026-11", "text": "Sample news item. Replace or delete it in the admin editor." }
+    {
+      "date": "2026-11",
+      "text": "Sample news item. Replace or delete it in the admin editor."
+    }
   ],
   "publications": [
     {
@@ -35,8 +61,14 @@
       "venue": "Conference or Journal Name, 2026",
       "status": "published",
       "links": [
-        { "label": "paper", "url": "https://doi.org/" },
-        { "label": "code", "url": "https://github.com/" }
+        {
+          "label": "paper",
+          "url": "https://doi.org/"
+        },
+        {
+          "label": "code",
+          "url": "https://github.com/"
+        }
       ],
       "note": ""
     },
@@ -52,18 +84,32 @@
   ],
   "students": {
     "current": [
-      { "name": "Student Name", "url": "", "role": "MS student", "project": "Short description of the project they work on.", "photo": "" }
+      {
+        "name": "Student Name",
+        "url": "",
+        "role": "MS student",
+        "project": "Short description of the project they work on.",
+        "photo": ""
+      }
     ],
     "past": [
-      { "name": "Former Student", "url": "", "now": "Role and organisation today" }
+      {
+        "name": "Former Student",
+        "url": "",
+        "now": "Role and organisation today"
+      }
     ]
   },
   "courses": {
     "current": [
-      { "text": "Course code and title (Fall 2026)", "url": "" }
+      {
+        "text": "Course code and title (Fall 2026)",
+        "url": ""
+      }
     ],
     "former": [],
     "tutorials": []
   },
-  "opportunities": "I welcome enquiries from motivated students and collaborators. Please email me with your CV and a short note on your interests."
+  "opportunities": "I welcome enquiries from motivated students and collaborators. Please email me with your CV and a short note on your interests.",
+  "ignored": []
 }

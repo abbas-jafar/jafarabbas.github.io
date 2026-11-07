@@ -171,16 +171,20 @@
     return nav + "<main>" + body + "</main>" + foot;
   }
 
-  function init() {
+  function draw(d) {
     var app = document.getElementById("app");
     var page = document.body.getAttribute("data-page") || "home";
+    var label = (PAGES.filter(function (x) { return x[2] === page; })[0] || [])[1] || "";
+    document.title = d.profile.name + (label && page !== "home" ? " — " + label : "");
+    app.innerHTML = shell(d, page, R[page](d));
+  }
+
+  function init() {
+    var app = document.getElementById("app");
+    window.SiteRender = { draw: draw };
     fetch("data/site.json?v=" + Date.now(), { cache: "no-store" })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (d) {
-        var label = (PAGES.filter(function (x) { return x[2] === page; })[0] || [])[1] || "";
-        document.title = d.profile.name + (label && page !== "home" ? " — " + label : "");
-        app.innerHTML = shell(d, page, R[page](d));
-      })
+      .then(draw)
       .catch(function () {
         app.innerHTML = "<p>Could not load <code>data/site.json</code>. If you opened this file directly from your disk, " +
           "run a local server instead (for example <code>python3 -m http.server</code>) and visit <code>http://localhost:8000</code>.</p>";
